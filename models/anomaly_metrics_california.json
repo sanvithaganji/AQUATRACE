@@ -1,0 +1,7 @@
+{
+  "dataset": "california",
+  "total_injected_anomalies": 30,
+  "caught_percentage": 96.66666666666667,
+  "avg_detection_delay_weeks": 1.5862068965517242,
+  "false_alarms_per_well_year": 5.867317507383657
+}

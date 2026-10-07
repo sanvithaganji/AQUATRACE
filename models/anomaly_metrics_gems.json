@@ -1,0 +1,7 @@
+{
+  "dataset": "gems",
+  "total_injected_anomalies": 30,
+  "caught_percentage": 100.0,
+  "avg_detection_delay_weeks": 1.2,
+  "false_alarms_per_well_year": 3.964274322169059
+}

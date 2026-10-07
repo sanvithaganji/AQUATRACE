@@ -1,0 +1,43 @@
+{
+  "dataset": "gems",
+  "tuned_threshold": 1.0,
+  "train_false_alarm_rate": 0.3160220994475138,
+  "test_false_alarm_rate": 0.4976076555023925,
+  "spatial_audit": {
+    "has_neighbour_25km": 2,
+    "total_wells": 15,
+    "pct_has_neighbour": 13.333333333333334,
+    "avg_nearest_distance_km": 67.55730623534764,
+    "is_meaningful": false
+  },
+  "harder_injection_tests": {
+    "0.5x": {
+      "magnitude_mult": 0.5,
+      "total_injections": 30,
+      "caught_count": 9,
+      "catch_rate_pct": 30.0,
+      "avg_delay_weeks": 4.666666666666667
+    },
+    "1.0x": {
+      "magnitude_mult": 1.0,
+      "total_injections": 30,
+      "caught_count": 13,
+      "catch_rate_pct": 43.333333333333336,
+      "avg_delay_weeks": 3.769230769230769
+    },
+    "2.0x": {
+      "magnitude_mult": 2.0,
+      "total_injections": 30,
+      "caught_count": 23,
+      "catch_rate_pct": 76.66666666666667,
+      "avg_delay_weeks": 3.782608695652174
+    },
+    "3.0x": {
+      "magnitude_mult": 3.0,
+      "total_injections": 30,
+      "caught_count": 27,
+      "catch_rate_pct": 90.0,
+      "avg_delay_weeks": 3.2962962962962963
+    }
+  }
+}

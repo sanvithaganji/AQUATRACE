@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+      <meta name="generator" content="ckan 2.9.11" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error 404 - California Natural Resources Agency Open Data</title>
+
+    
+    
+    <link rel="shortcut icon" href="/img/cnra_favicon.ico" />
+    
+    
+        
+    <!-- Google tag (gtag.js) -->
+    
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q09GQ8WSZJ"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+
+        
+            gtag('set', 'linker');
+
+            gtag('js', new Date());
+
+            gtag('config', 'G-Q09GQ8WSZJ', {
+                anonymize_ip: true,
+                linker: {
+                    domains: []
+                }
+            });
+        
+
+        
+        
+
+        </script>
+    
+
+    
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZG8VBX1CS3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-ZG8VBX1CS3');
+    </script>
+
+
+
+    
+
+  
+  
+    
+    
+    
+  
+  
+    
+  
+      
+      
+      
+    
+  
+
+    
+    
+
+
+  <link rel="stylesheet" href="/css/custom.css" />
+
+  
+
+    
+
+    
+
+    
+    
+
+  <link rel="stylesheet" type="text/css" href="/css/slick.css"/>
+  <link rel="stylesheet" type="text/css" href="/css/slick-theme.css"/>
+
+  
+  
+
+  
+  
+
+
+    
+  
+      
+      
+    
+  <script defer src="https://alert.cdt.ca.gov" crossorigin="anonymous"></script>
+
+
+    
+    <link href="/webassets/base/2471d0b8_main.css" rel="stylesheet"/>
+<link href="/webassets/vendor/f3b8236b_select2.css" rel="stylesheet"/>
+<link href="/webassets/vendor/0b01aef1_font-awesome.css" rel="stylesheet"/>
+<link href="/webassets/opengov_custom_theme_resource/79f62e2e_main.css" rel="stylesheet"/>
+<link href="/webassets/ckanext-scheming/728ec589_scheming_css.css" rel="stylesheet"/>
+<link href="/webassets/ckanext-harvest/5eed4f7b_harvest_css.css" rel="stylesheet"/>
+<link href="/webassets/md_view_assets/b80c6c86_markdown_resource_styles.css" rel="stylesheet"/>
+<link href="/webassets/ckanext-geoview/f197a782_geo-resource-styles.css" rel="stylesheet"/>
+<link href="/webassets/opengov_custom_theme/4429c25c_theme.css" rel="stylesheet"/>
+    <style>
+        a {
+  color: #165cab;
+}
+h1 {
+  font-size: 32px;
+}
+h2 {
+  font-size: 28px;
+}
+h3 {
+  font-size: 20px;
+}
+h4 {
+  font-size: 16px;
+}
+h5 {
+  font-size: 14px;
+}
+h6 {
+  font-size: 12px;
+}
+.heading-explanation {
+  font-size: 20px;
+}
+.module-content {
+  padding: 20px 25px;
+}
+.module-heading .action {
+  color: #131517 !important;
+}
+.heading-explanation {
+  font-size: 22px;
+  line-height: 22px;
+}
+.main-featured {
+  background: #EFF2F5;
+}
+.main-updates li.dataset-item {
+  min-height: 165px;
+}
+.main-updates .dataset-list .dataset-item .dataset-content,
+.main-updates .dataset-list .dataset-item .dataset-resources {
+  padding-left: 0;
+}
+.featured-charts-wrap {
+  padding: 0;
+}
+#login-form .form-group,
+.contact-form .form-group {
+  margin-left: 0;
+}
+
+.compressed.masthead .account-masthead .account ul li a {
+  font-size: 16px;
+}
+
+p a {
+  text-decoration: underline;
+}
+.btn {
+  text-decoration: none;
+}
+
+/* CSS for hero slider */
+.tint {
+  background-color: rgba(31, 84, 155, 0.7);
+}
+.hero-text-description {
+  font-size: 22px;
+}
+@media only screen and (min-width: 768px) {
+  .cd-header.cd-half-width {
+    text-align: center;
+    width: 100%;
+  }
+}
+@media only screen and (min-width: 1200px) {
+  .cd-header.cd-half-width {
+    text-align: left;
+    width: 50%;
+  }
+}
+
+.label[data-format=geojson],
+.label[data-format*=geojson] {
+  background-color: #85252f !important;
+}
+.label[data-format=gml],
+.label[data-format*=gml] {
+  background-color: #847e31 !important;
+}
+.label[data-format=kml],
+.label[data-format*=kml] {
+  background-color: #223582 !important;
+}
+.label[data-format=shp],
+.label[data-format*=shp] {
+  background-color: #3b2d80 !important;
+}
+.label[data-format=wfs],
+.label[data-format*=wfs] {
+  background-color: #246984 !important;
+}
+.label[data-format=wms],
+.label[data-format*=wms] {
+  background-color: #248462 !important;
+}
+.label[data-format=arcgis],
+.label[data-format*=arcgis],
+.label[data-format=chart],
+.label[data-format*=chart],
+.label[data-format=map] {
+  background-color: #852c7b !important;
+}
+.context-info .description {
+  word-break: break-word;
+}
+      </style>
+    <style>
+
+ .account-masthead {background: #ffffff}
+ .account-masthead .account ul li a:hover {background: #165cab}
+ .account-masthead .account ul li a {color: #07305c}
+ .masthead, .main-navigation {background: #ffffff}
+ .masthead .navigation .nav-pills li a:hover,.masthead .navigation .nav-pills li a:focus,.masthead .navigation .nav-pills li.active a,.main-navigation .main-navigation-title,.main-navigation .menu li a:hover,.main-navigation .menu li a:focus,.main-navigation .menu li.active a,label.nav-trigger,.navbar-toggle {background-color: #165cab}
+ .navbar .nav>li>a,.masthead .nav>li>a,.navbar .navbar-left>h1>a,.navbar .navbar-left>h2,.main-navigation .main-navigation-title,.main-navigation .menu li a {color: #375f87}
+ .module-heading {background: #eff2f5}
+ .module-heading,.module-heading .action {color: #131517}
+ body, .site-footer, .footer-column-form .cke_reset {background: #1f549b}
+ .site-footer a,.site-footer a:hover,.footer-column-form .cke_reset a {color: #ffffff}
+ .site-footer,.site-footer label,.site-footer small,.footer-column-form .cke_reset {color: #ffffff}</style>
+
+  </head>
+
+  
+  <body data-site-root="https://data.cnra.ca.gov/" data-locale-root="https://data.cnra.ca.gov/" >
+
+    
+  <div class="visually-hidden-focusable skip-content"><a href="#content">Skip to content</a></div>
+
+
+  
+
+  <div class="page" id="page">
+    
+      
+        
+<header class="navbar navbar-static-top masthead compressed">
+  
+      
+  
+  <div class="container">
+    <div class="navbar-right">
+      <button data-target="#main-navigation-toggle" data-toggle="collapse" class="navbar-toggle collapsed" type="button" aria-label="expand or collapse" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="fa fa-bars"></span>
+      </button>
+    </div>
+    <div class="header-image navbar-left">
+      
+         
+      <a class="logo" href="/"><img src="/uploads/admin/2021-10-19-212312.133874CNRA-Logo.png" alt="California Natural Resources Agency Open Data" title="California Natural Resources Agency Open Data" /></a>
+       
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navigation-toggle">
+      
+        <nav class="section navigation" aria-label="Navigation">
+          <ul class="nav nav-pills">
+            
+              <li><a href="/dataset">Open Data</a></li><li><a href="/organization">Organizations</a></li><li><a href="/group">Topics</a></li><li><a href="/pages/training">Training</a></li>
+            
+          </ul>
+        </nav>
+      
+      
+        <div class="account-masthead">
+          
+            
+              <nav class="account not-authed" aria-label="Account">
+                <ul class="list-unstyled unstyled">
+                  
+                    
+    
+  <li><a href="/user/login">Log in</a></li>
+  
+
+    
+    <li>
+      <a href="/contact?ref=https%3A%2F%2Fdata.cnra.ca.gov%2Fdataset%2Fdd1146bf-296a-4562-afac-53ad6b9e89a1%2Fresource%2Fbfa9f262-24a1-45bd-8dc8-138bc8107266%2Fdownload%2Fcontinuous_gwe.csv" title="Contact">
+        
+           Contact
+        
+      </a>
+    </li>
+
+
+                  
+                </ul>
+              </nav>
+            
+          
+        </div>
+      
+
+    </div>
+  </div>
+</header>
+
+      
+    
+      
+    <div class="main">
+      <div id="content" class="container">
+        
+          
+  
+  
+
+
+          
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+              
+
+            </div>
+          
+
+          <div class="row wrapper no-nav">
+            
+            
+            
+
+            
+
+            
+  <article class="module">
+    <div class="module-content">
+      
+      <h1>404 Not Found</h1>
+      
+      No download is available
+    </div>
+  </article>
+
+          </div>
+        
+      </div>
+    </div>
+  
+    
+      
+  
+      <footer class="site-footer">
+  <div class="container">
+    
+  <div class="row">
+    
+    
+    
+      <div class="col-md-4 span4 footer-links">
+        <ul class="list-unstyled">
+	<li><a href="/about">About California Natural Resources Agency Open Data</a></li>
+	<li><a href="https://docs.ckan.org/en/2.9/api/" target="_blank">API Documentation</a></li>
+	<li><a href="/pages/metrics">Portal Metrics</a></li>
+	<li><a href="/pages/disclaimer">Disclaimer</a></li>
+	<li><a href="/contact">Contact Us</a></li>
+	<li><a href="/pages/glossary">Glossary</a></li>
+</ul>
+
+      </div>
+    
+      <div class="col-md-4 span4 footer-links">
+        
+      </div>
+    
+      <div class="col-md-4 span4 footer-links">
+        
+      </div>
+    
+    <div class="attribution og-attribution">
+      
+        <strong>Powered by</strong>
+        <div class="og-links">
+          <a class="pull-left" href="https://opengov.com/?utm_campaign=Footer-Product-OpenData&utm_source=OpenGov&utm_medium=product&utm_term=PO-OGOV-1274&utm_content=logo" target="_blank">
+            <img src="/img/OpenGov-Logo-RGB-White.svg" alt="OpenGov" height="25">
+          </a>
+          <a class="hide-text ckan-footer-logo pull-right" href="https://ckan.org" target="_blank">CKAN</a>
+        </div>
+      
+      
+        
+<form class="form-inline form-select lang-select" action="/util/redirect" data-module="select-switch" method="POST">
+  <label for="field-lang-select">Language</label>
+  <select id="field-lang-select" name="url" data-module="autocomplete" data-module-dropdown-class="lang-dropdown" data-module-container-class="lang-container">
+    
+      <option value="/en/dataset/dd1146bf-296a-4562-afac-53ad6b9e89a1/resource/bfa9f262-24a1-45bd-8dc8-138bc8107266/download/continuous_gwe.csv" selected="selected">
+        English
+      </option>
+    
+      <option value="/de/dataset/dd1146bf-296a-4562-afac-53ad6b9e89a1/resource/bfa9f262-24a1-45bd-8dc8-138bc8107266/download/continuous_gwe.csv" >
+        Deutsch
+      </option>
+    
+      <option value="/es/dataset/dd1146bf-296a-4562-afac-53ad6b9e89a1/resource/bfa9f262-24a1-45bd-8dc8-138bc8107266/download/continuous_gwe.csv" >
+        español
+      </option>
+    
+      <option value="/fr/dataset/dd1146bf-296a-4562-afac-53ad6b9e89a1/resource/bfa9f262-24a1-45bd-8dc8-138bc8107266/download/continuous_gwe.csv" >
+        français
+      </option>
+    
+      <option value="/it/dataset/dd1146bf-296a-4562-afac-53ad6b9e89a1/resource/bfa9f262-24a1-45bd-8dc8-138bc8107266/download/continuous_gwe.csv" >
+        italiano
+      </option>
+    
+  </select>
+  <button class="btn btn-default js-hide" type="submit">Go</button>
+</form>
+      
+    </div>
+  </div>
+
+  </div>
+
+  
+    
+  
+</footer>
+  
+
+    </div>
+
+  
+    
+  
+  
+  
+    
+  
+  
+  
+    
+  
+    
+  
+
+    
+        
+        
+        <div class="js-hide" data-module="google-analytics"
+             data-module-googleanalytics_resource_prefix="/downloads/">
+        </div>
+    
+
+  <script>
+    var writeKey = "3L1FWi3tBfRI7pt0n1tb6w8WhTvMNObJ";
+    if(writeKey !== ""){
+      !function(){var i="analytics",analytics=window[i]=window[i]||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","screen","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware","register"];analytics.factory=function(e){return function(){if(window[i].initialized)return window[i][e].apply(window[i],arguments);var n=Array.prototype.slice.call(arguments);if(["track","screen","alias","group","page","identify"].indexOf(e)>-1){var c=document.querySelector("link[rel='canonical']");n.push({__t:"bpc",c:c&&c.getAttribute("href")||void 0,p:location.pathname,u:location.href,s:location.search,t:document.title,r:document.referrer})}n.unshift(e);analytics.push(n);return analytics}};for(var n=0;n<analytics.methods.length;n++){var key=analytics.methods[n];analytics[key]=analytics.factory(key)}analytics.load=function(key,n){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.setAttribute("data-global-segment-analytics-key",i);t.src="https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";var r=document.getElementsByTagName("script")[0];r.parentNode.insertBefore(t,r);analytics._loadOptions=n};analytics._writeKey=writeKey;;analytics.SNIPPET_VERSION="5.2.0";
+        
+      }}();
+    }
+  </script>
+
+
+    
+        
+        
+        
+    
+
+
+  
+  
+
+      
+
+    
+    
+    
+    <script src="/webassets/vendor/d8ae4bed_jquery.js" type="text/javascript"></script>
+<script src="/webassets/vendor/bfa47fa0_vendor.js" type="text/javascript"></script>
+<script src="/webassets/vendor/580fa18d_bootstrap.js" type="text/javascript"></script>
+<script src="/webassets/base/898d50a3_main.js" type="text/javascript"></script>
+<script src="/webassets/opengov_custom_theme_resource/abfa64d4_main.js" type="text/javascript"></script>
+<script src="/webassets/showcase/f1e0c50f_slick.js" type="text/javascript"></script>
+<script src="/webassets/opengov_custom_theme/fc709ed7_theme.js" type="text/javascript"></script>
+<script src="/webassets/base/2448af8b_ckan.js" type="text/javascript"></script>
+<script src="/webassets/base/cd2c0272_tracking.js" type="text/javascript"></script>
+<script src="/webassets/ckanext-googleanalytics/event_tracking.js?71ae8997" type="text/javascript"></script>
+<script src="/webassets/vendor/76d36bbb_fileupload.js" type="text/javascript"></script>
+<script src="/webassets/ckanext-cloudstorage/0cf5be9f_main.js" type="text/javascript"></script>
+  </body>
+</html>

@@ -1,0 +1,227 @@
+[
+  {
+    "well_id": "MW_1",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.0233729554602,
+    "baseline_rmse_m": 0.03348318022715947,
+    "lstm_mae_m": 0.02391542957515122,
+    "lstm_rmse_m": 0.03294435164497776,
+    "selected_model": "Fair Baseline (AR-12 Ridge)",
+    "std_train_gap_m": 0.04861844354068578
+  },
+  {
+    "well_id": "MW_5",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.02174918705358909,
+    "baseline_rmse_m": 0.028617622004754734,
+    "lstm_mae_m": 0.020829414446431785,
+    "lstm_rmse_m": 0.025081826248295386,
+    "selected_model": "LSTM",
+    "std_train_gap_m": 0.02948103622603228
+  },
+  {
+    "well_id": "MW_10",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.008634850598477186,
+    "baseline_rmse_m": 0.011377512705881472,
+    "lstm_mae_m": 0.008125325441043467,
+    "lstm_rmse_m": 0.010668033927868774,
+    "selected_model": "LSTM",
+    "std_train_gap_m": 0.012014257332052088
+  },
+  {
+    "well_id": "MW_25",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.012401050052627857,
+    "baseline_rmse_m": 0.017940333857921115,
+    "lstm_mae_m": 0.01078658018529217,
+    "lstm_rmse_m": 0.01667196657141165,
+    "selected_model": "LSTM",
+    "std_train_gap_m": 0.02098981909151497
+  },
+  {
+    "well_id": "MW_50",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.04482838377148491,
+    "baseline_rmse_m": 0.06801725466844909,
+    "lstm_mae_m": 0.04714704273025494,
+    "lstm_rmse_m": 0.06974918168527786,
+    "selected_model": "Fair Baseline (AR-12 Ridge)",
+    "std_train_gap_m": 0.05404132180208227
+  },
+  {
+    "well_id": "MW_100",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.050928516541322154,
+    "baseline_rmse_m": 0.06429856856112108,
+    "lstm_mae_m": 0.0821315098857341,
+    "lstm_rmse_m": 0.10681732992292266,
+    "selected_model": "Fair Baseline (AR-12 Ridge)",
+    "std_train_gap_m": 0.053847690710560024
+  },
+  {
+    "well_id": "MW_150",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.013357766324260086,
+    "baseline_rmse_m": 0.01799544877363911,
+    "lstm_mae_m": 0.012436871051219276,
+    "lstm_rmse_m": 0.017133365210712407,
+    "selected_model": "Fair Baseline (AR-12 Ridge)",
+    "std_train_gap_m": 0.02501275086610776
+  },
+  {
+    "well_id": "MW_200",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.029735479029456977,
+    "baseline_rmse_m": 0.04284261500172804,
+    "lstm_mae_m": 0.029924136760199012,
+    "lstm_rmse_m": 0.041834797938898646,
+    "selected_model": "Fair Baseline (AR-12 Ridge)",
+    "std_train_gap_m": 0.0674116963021539
+  },
+  {
+    "well_id": "MW_350",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.010605432718659855,
+    "baseline_rmse_m": 0.012913925758094932,
+    "lstm_mae_m": 0.03692553933454588,
+    "lstm_rmse_m": 0.04484384663040196,
+    "selected_model": "Fair Baseline (AR-12 Ridge)",
+    "std_train_gap_m": 0.01882777415890144
+  },
+  {
+    "well_id": "MW_500",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.023378626538570382,
+    "baseline_rmse_m": 0.030407506348785307,
+    "lstm_mae_m": 0.02312376613656116,
+    "lstm_rmse_m": 0.030510628233430113,
+    "selected_model": "Fair Baseline (AR-12 Ridge)",
+    "std_train_gap_m": 0.04220242459278864
+  },
+  {
+    "well_id": "MW_750",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.3901771293946403,
+    "baseline_rmse_m": 0.658225118370242,
+    "lstm_mae_m": 0.4070754569144917,
+    "lstm_rmse_m": 0.7208766022225811,
+    "selected_model": "Fair Baseline (AR-12 Ridge)",
+    "std_train_gap_m": 0.5286240600698224
+  },
+  {
+    "well_id": "MW_1000",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.055970752584248495,
+    "baseline_rmse_m": 0.09064875846217527,
+    "lstm_mae_m": 0.06789956637621694,
+    "lstm_rmse_m": 0.09115320841019954,
+    "selected_model": "Fair Baseline (AR-12 Ridge)",
+    "std_train_gap_m": 0.10816748854626584
+  },
+  {
+    "well_id": "MW_1250",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.030972018365825672,
+    "baseline_rmse_m": 0.0458636632701452,
+    "lstm_mae_m": 0.029692437096326983,
+    "lstm_rmse_m": 0.04091266078650208,
+    "selected_model": "LSTM",
+    "std_train_gap_m": 0.0526578607061414
+  },
+  {
+    "well_id": "MW_1500",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.12258422850864101,
+    "baseline_rmse_m": 0.21619072660301647,
+    "lstm_mae_m": 0.1274930728734723,
+    "lstm_rmse_m": 0.22302907594064444,
+    "selected_model": "Fair Baseline (AR-12 Ridge)",
+    "std_train_gap_m": 0.16969111859506283
+  },
+  {
+    "well_id": "MW_1800",
+    "train_samples": 1448,
+    "test_samples": 209,
+    "test_date_range": [
+      "2018-12-31",
+      "2022-12-26"
+    ],
+    "baseline_mae_m": 0.04133965762381775,
+    "baseline_rmse_m": 0.05871426227766317,
+    "lstm_mae_m": 0.03995052639766001,
+    "lstm_rmse_m": 0.05538776045467343,
+    "selected_model": "LSTM",
+    "std_train_gap_m": 0.05913881015354106
+  }
+]

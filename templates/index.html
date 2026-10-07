@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Groundwater Fingerprint — IoT Intelligence Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-base: #090d16;
+      --bg-surface: #101726;
+      --bg-card: #151f33;
+      --bg-card-hover: #1c2a44;
+      --border-subtle: #1e293b;
+      --border-bright: #334155;
+      
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --risk-green: #10b981;
+      --risk-yellow: #f59e0b;
+      --risk-red: #ef4444;
+      --risk-critical: #dc2626;
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Ambient glow backgrounds */
+    .ambient-glow {
+      position: fixed;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -200px;
+      left: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(16, 23, 38, 0.85);
+      backdrop-filter: blur(12px);
+      padding: 1.25rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #06b6d4, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35);
+    }
+
+    .brand-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #ffffff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .header-pills {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-bright);
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--risk-green);
+      box-shadow: 0 0 10px var(--risk-green);
+    }
+
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      padding: 2rem 2.5rem;
+      max-width: 1500px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    /* Top Decision Alert Banner */
+    .decision-banner {
+      border-radius: 16px;
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.12) 0%, rgba(21, 31, 51, 0.8) 100%);
+      transition: all 0.3s ease;
+    }
+
+    .decision-left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .decision-badge-icon {
+      font-size: 2.2rem;
+    }
+
+    .decision-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.25rem;
+    }
+
+    .decision-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .priority-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--risk-red);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+      white-space: nowrap;
+    }
+
+    /* Grid layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 1.75rem;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Risk Score Gauge Card */
+    .risk-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 2rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .risk-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+    }
+
+    .card-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Circular SVG Gauge */
+    .gauge-wrapper {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin-bottom: 1.5rem;
+    }
+
+    .gauge-svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.06);
+      stroke-width: 14;
+    }
+
+    .gauge-progress {
+      fill: none;
+      stroke: var(--risk-red);
+      stroke-width: 14;
+      stroke-linecap: round;
+      stroke-dasharray: 565;
+      stroke-dashoffset: 80;
+      transition: stroke-dashoffset 0.8s ease, stroke 0.5s ease;
+    }
+
+    .gauge-center-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .gauge-value {
+      font-size: 4rem;
+      font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .gauge-max {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 0.25rem;
+    }
+
+    .gauge-status-pill {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      padding: 0.35rem 1rem;
+      border-radius: 9999px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--risk-red);
+    }
+
+    /* Sub-Anomaly Metrics Cards */
+    .submetrics-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-top: 1.25rem;
+    }
+
+    .submetric-row {
+      background: rgba(16, 23, 38, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .submetric-name {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .submetric-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+    }
+
+    .badge-normal {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--risk-green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-high {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--risk-red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-medium {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--risk-yellow);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    /* Chart & Control Container */
+    .main-content-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .chart-title-area h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .chart-title-area p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .chart-canvas-container {
+      position: relative;
+      height: 320px;
+      width: 100%;
+    }
+
+    /* Quick Demo Bar (Competition Feature) */
+    .demo-bar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 1.5rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .demo-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #93c5fd;
+    }
+
+    .scenario-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .scenario-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn-scenario {
+      border: none;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .btn-scenario:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-scenario-normal {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .btn-scenario-normal:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+    .btn-scenario-normal .btn-title { color: var(--risk-green); }
+
+    .btn-scenario-excessive {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .btn-scenario-excessive:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    .btn-scenario-excessive .btn-title { color: var(--risk-red); }
+
+    .btn-scenario-unregistered {
+      background: rgba(220, 38, 38, 0.15);
+      border: 1px solid rgba(220, 38, 38, 0.4);
+    }
+    .btn-scenario-unregistered:hover {
+      background: rgba(220, 38, 38, 0.25);
+    }
+    .btn-scenario-unregistered .btn-title { color: #fca5a5; }
+
+    .btn-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    /* Live hardware telemetry summary */
+    .hw-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .hw-meta-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .hw-item {
+      background: rgba(16, 23, 38, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+    }
+
+    .hw-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .hw-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 1.25rem 2.5rem;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-surface);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">💧</div>
+      <div>
+        <div class="brand-title">GROUNDWATER FINGERPRINT</div>
+        <div class="brand-subtitle">Extraction-Aware IoT Intelligence & Urban Aquifer Protection</div>
+      </div>
+    </div>
+    <div class="header-pills">
+      <div class="pill">
+        <span class="pill-dot" id="node-online-dot"></span>
+        <span id="node-status-text">ESP32-S3 Node Connected</span>
+      </div>
+      <div class="pill">
+        <span>Sampling: 1 Hz</span>
+      </div>
+      <div class="pill">
+        <span>ML Core: Active</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Decision Support Banner -->
+    <div class="decision-banner" id="decision-banner">
+      <div class="decision-left">
+        <div class="decision-badge-icon" id="decision-icon">⚠️</div>
+        <div>
+          <div class="decision-title" id="decision-title">SUSPECTED EXCESSIVE EXTRACTION</div>
+          <div class="decision-desc" id="decision-desc">
+            Aquifer drawdown exceeded baseline envelope by 3.4x with prolonged recovery delay. Physical inspection recommended.
+          </div>
+        </div>
+      </div>
+      <div class="priority-tag" id="priority-tag">PRIORITY: HIGH</div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+      <!-- Left Column: Risk Gauge & Hydrogeological Factors -->
+      <div class="risk-card">
+        <div class="card-label">Aquifer Extraction Risk Score</div>
+        
+        <!-- Circular Radial Gauge -->
+        <div class="gauge-wrapper">
+          <svg class="gauge-svg" viewBox="0 0 200 200">
+            <circle class="gauge-bg" cx="100" cy="100" r="90"></circle>
+            <circle class="gauge-progress" id="gauge-circle" cx="100" cy="100" r="90"></circle>
+          </svg>
+          <div class="gauge-center-content">
+            <div class="gauge-value" id="risk-score-value">87</div>
+            <div class="gauge-max">/ 100</div>
+            <div class="gauge-status-pill" id="risk-status-pill">🔴 ABNORMAL</div>
+          </div>
+        </div>
+
+        <!-- Breakdown list -->
+        <div class="submetrics-list">
+          <div class="submetric-row">
+            <span class="submetric-name">Drawdown Anomaly</span>
+            <span class="submetric-badge badge-high" id="badge-drawdown">HIGH (4.8 cm)</span>
+          </div>
+          <div class="submetric-row">
+            <span class="submetric-name">Recovery Anomaly</span>
+            <span class="submetric-badge badge-high" id="badge-recovery">SLOW (68.4s)</span>
+          </div>
+          <div class="submetric-row">
+            <span class="submetric-name">Activity Mismatch</span>
+            <span class="submetric-badge badge-normal" id="badge-activity">PERMITTED</span>
+          </div>
+          <div class="submetric-row">
+            <span class="submetric-name">Historical Drift / Deficit</span>
+            <span class="submetric-badge badge-medium" id="badge-drift">ELEVATED (0.4 cm)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Chart, Scenarios, Hardware Telemetry -->
+      <div class="main-content-column">
+        <!-- Live Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-area">
+              <h3>Live Aquifer Dynamics — Drawdown & Recovery Trajectory</h3>
+              <p>HC-SR04 continuous water column tracking vs. trained site baseline</p>
+            </div>
+            <div class="pill">
+              <span id="chart-state-badge">STATE: RECOVERY</span>
+            </div>
+          </div>
+
+          <div class="chart-canvas-container">
+            <canvas id="aquiferChart"></canvas>
+          </div>
+
+          <!-- Hardware Telemetry Pills -->
+          <div class="hw-meta-grid">
+            <div class="hw-item">
+              <div class="hw-label">Current Water Level</div>
+              <div class="hw-value" id="val-water-level">21.8 cm</div>
+            </div>
+            <div class="hw-item">
+              <div class="hw-label">Site Baseline Envelope</div>
+              <div class="hw-value" id="val-baseline">26.0 cm</div>
+            </div>
+            <div class="hw-item">
+              <div class="hw-label">HC-SR04 Distance</div>
+              <div class="hw-value" id="val-distance">16.2 cm</div>
+            </div>
+            <div class="hw-item">
+              <div class="hw-label">Pump Relay State</div>
+              <div class="hw-value" id="val-pump-state" style="color: #ef4444;">ACTIVE (ON)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1-Click Interactive Demo Buttons for Competition Presentation -->
+        <div class="demo-bar-card">
+          <div class="demo-title">
+            <span>⚡ Competition Live Scenarios — 1-Click Demonstration</span>
+          </div>
+          <div class="scenario-buttons">
+            <button class="btn-scenario btn-scenario-normal" onclick="triggerScenario('normal')">
+              <div class="btn-title">🟢 Scenario 1 — Normal</div>
+              <div class="btn-desc">Brief permitted pumping. Drawdown normal, quick recharge. <strong>Risk: ~20/100</strong></div>
+            </button>
+            <button class="btn-scenario btn-scenario-excessive" onclick="triggerScenario('excessive')">
+              <div class="btn-title">🔴 Scenario 2 — Excessive</div>
+              <div class="btn-desc">Long pump run, deep drawdown, delayed recovery. <strong>Risk: ~85/100</strong></div>
+            </button>
+            <button class="btn-scenario btn-scenario-unregistered" onclick="triggerScenario('unregistered')">
+              <div class="btn-title">🚨 Scenario 3 — Unregistered</div>
+              <div class="btn-desc">Extraction outside registered permit schedule. <strong>Risk: ~88-94/100</strong></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>Groundwater Fingerprint — Low-cost IoT Groundwater Intelligence Model (ESP32-S3 + HC-SR04)</div>
+    <div>Dual ML Architecture: PyTorch LSTM Autoencoder + Isolation Forest + Hydrogeological Calibration</div>
+  </footer>
+
+  <script>
+    // Initialize Chart.js
+    const ctx = document.getElementById('aquiferChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Water Level (cm)',
+            borderColor: '#06b6d4',
+            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.35,
+            pointRadius: 1,
+            data: []
+          },
+          {
+            label: 'Baseline Fingerprint',
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+            borderDash: [5, 5],
+            borderWidth: 1.5,
+            pointRadius: 0,
+            fill: false,
+            data: []
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 600 },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            ticks: { color: '#64748b', font: { family: 'JetBrains Mono' } },
+            title: { display: true, text: 'Time (seconds)', color: '#64748b' }
+          },
+          y: {
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            ticks: { color: '#64748b', font: { family: 'JetBrains Mono' } },
+            title: { display: true, text: 'Water Level (cm)', color: '#64748b' },
+            suggestedMin: 10,
+            suggestedMax: 30
+          }
+        },
+        plugins: {
+          legend: {
+            labels: { color: '#94a3b8', font: { family: 'Outfit' } }
+          }
+        }
+      }
+    });
+
+    // Update Radial Gauge Circle
+    function updateGauge(score, color) {
+      const circle = document.getElementById('gauge-circle');
+      const maxCircumference = 2 * Math.PI * 90; // ~565.48
+      const offset = maxCircumference * (1 - score / 100);
+      circle.style.strokeDashoffset = offset;
+      circle.style.stroke = color;
+
+      document.getElementById('risk-score-value').innerText = score;
+      document.getElementById('risk-score-value').style.color = color;
+    }
+
+    // Trigger Scenario Demo
+    async function triggerScenario(name) {
+      try {
+        const res = await fetch(`/api/simulate_scenario?scenario=${name}`, { method: 'POST' });
+        const data = await res.json();
+        renderEvaluation(data);
+      } catch (err) {
+        console.error('Scenario fetch failed:', err);
+      }
+    }
+
+    // Render ML Evaluation & Charts
+    function renderEvaluation(data) {
+      const risk = data.extraction_risk_score;
+      const priority = data.inspection_priority;
+      const status = data.status;
+      const badgeColor = data.badge_color;
+      const sub = data.sub_scores;
+
+      // Update Gauge
+      updateGauge(risk, badgeColor);
+      document.getElementById('risk-status-pill').innerText = `${priority}: ${status}`;
+      document.getElementById('risk-status-pill').style.borderColor = badgeColor;
+      document.getElementById('risk-status-pill').style.background = `${badgeColor}22`;
+      document.getElementById('risk-status-pill').style.color = badgeColor;
+
+      // Update Decision Banner
+      const banner = document.getElementById('decision-banner');
+      const pTag = document.getElementById('priority-tag');
+      const dTitle = document.getElementById('decision-title');
+      const dDesc = document.getElementById('decision-desc');
+      const dIcon = document.getElementById('decision-icon');
+
+      pTag.innerText = `PRIORITY: ${priority}`;
+      pTag.style.background = badgeColor;
+      dTitle.innerText = status;
+      dDesc.innerText = data.recommendation;
+
+      if (priority === 'LOW') {
+        dIcon.innerText = '🟢';
+        banner.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        banner.style.background = 'linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(21, 31, 51, 0.8) 100%)';
+      } else if (priority === 'MEDIUM') {
+        dIcon.innerText = '🟡';
+        banner.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+        banner.style.background = 'linear-gradient(90deg, rgba(245, 158, 11, 0.12) 0%, rgba(21, 31, 51, 0.8) 100%)';
+      } else {
+        dIcon.innerText = priority === 'CRITICAL' ? '🚨' : '⚠️';
+        banner.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        banner.style.background = 'linear-gradient(90deg, rgba(239, 68, 68, 0.14) 0%, rgba(21, 31, 51, 0.8) 100%)';
+      }
+
+      // Sub-metrics
+      if (sub) {
+        setSubmetric('badge-drawdown', `${sub.drawdown_anomaly.level} (${sub.drawdown_anomaly.measured_cm} cm)`, sub.drawdown_anomaly.level);
+        setSubmetric('badge-recovery', `${sub.recovery_anomaly.level} (${sub.recovery_anomaly.duration_sec}s)`, sub.recovery_anomaly.level);
+        setSubmetric('badge-activity', `${sub.activity_mismatch.level}`, sub.activity_mismatch.is_registered ? 'NORMAL' : 'HIGH');
+        setSubmetric('badge-drift', `${sub.historical_pattern.level} (${sub.historical_pattern.residual_deficit_cm} cm)`, sub.historical_pattern.level);
+      }
+
+      // Chart Update
+      if (data.time_series) {
+        chart.data.labels = data.time_series.time_sec.map(t => `${Math.round(t)}s`);
+        chart.data.datasets[0].data = data.time_series.water_level_cm;
+        chart.data.datasets[1].data = Array(data.time_series.time_sec.length).fill(data.time_series.baseline_cm);
+        chart.update();
+
+        const lastIdx = data.time_series.water_level_cm.length - 1;
+        document.getElementById('val-water-level').innerText = `${data.time_series.water_level_cm[lastIdx]} cm`;
+        document.getElementById('val-baseline').innerText = `${data.time_series.baseline_cm} cm`;
+        document.getElementById('val-distance').innerText = `${data.time_series.sensor_distance_cm[lastIdx]} cm`;
+        
+        const isPumpOn = data.time_series.pump_state.some(p => p === 1);
+        document.getElementById('val-pump-state').innerText = isPumpOn ? 'CYCLE OBSERVED' : 'STANDBY';
+        document.getElementById('chart-state-badge').innerText = `SCENARIO: ${data.scenario_name.toUpperCase()}`;
+      }
+    }
+
+    function setSubmetric(id, text, level) {
+      const el = document.getElementById(id);
+      el.innerText = text;
+      el.className = 'submetric-badge ' + (
+        level.includes('NORMAL') || level.includes('ALIGNED') || level.includes('STABLE') ? 'badge-normal' :
+        (level.includes('MEDIUM') || level.includes('SLOW') || level.includes('ELEVATED') ? 'badge-medium' : 'badge-high')
+      );
+    }
+
+    // Auto-load Scenario 2 (Excessive) initially as proof of concept
+    window.addEventListener('DOMContentLoaded', () => {
+      triggerScenario('excessive');
+      
+      // Poll background status every 2 seconds
+      setInterval(async () => {
+        try {
+          const res = await fetch('/api/status');
+          const data = await res.json();
+          if (data.node_info && data.node_info.online) {
+            document.getElementById('node-online-dot').style.background = '#10b981';
+            document.getElementById('node-status-text').innerText = `ESP32-S3 (${data.node_info.node_id}) LIVE`;
+          }
+        } catch (e) {}
+      }, 2000);
+    });
+  </script>
+</body>
+</html>

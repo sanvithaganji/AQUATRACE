@@ -1,0 +1,40 @@
+{
+  "with_start_hour": {
+    "experiment": "Run A (With start_hour)",
+    "features_used": [
+      "drawdown_depth_cm",
+      "drop_rate_cm_s",
+      "fall_duration_s",
+      "recovery_5min_pct",
+      "start_hour"
+    ],
+    "train_normal_count": 70,
+    "test_normal_count": 30,
+    "abnormal_count": 30,
+    "abnormal_caught_count": 28,
+    "abnormal_caught_pct": 93.33333333333333,
+    "false_alarms_count": 1,
+    "false_alarm_pct": 3.3333333333333335,
+    "mean_normal_risk": 20.609057497576345,
+    "mean_abnormal_risk": 73.69686046134773
+  },
+  "without_start_hour": {
+    "experiment": "Run B (WITHOUT start_hour - Level Only)",
+    "features_used": [
+      "drawdown_depth_cm",
+      "drop_rate_cm_s",
+      "fall_duration_s",
+      "recovery_5min_pct"
+    ],
+    "train_normal_count": 70,
+    "test_normal_count": 30,
+    "abnormal_count": 30,
+    "abnormal_caught_count": 28,
+    "abnormal_caught_pct": 93.33333333333333,
+    "false_alarms_count": 0,
+    "false_alarm_pct": 0.0,
+    "mean_normal_risk": 19.489274474179616,
+    "mean_abnormal_risk": 76.19663645683924
+  },
+  "audit_disclaimer": "Simulated tank results demonstrate code execution and pipeline integrity only, not real-world hardware performance."
+}

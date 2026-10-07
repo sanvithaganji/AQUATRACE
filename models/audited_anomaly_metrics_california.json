@@ -1,0 +1,43 @@
+{
+  "dataset": "california",
+  "tuned_threshold": 1.2,
+  "train_false_alarm_rate": 0.5860362836723474,
+  "test_false_alarm_rate": 1.0596797671033478,
+  "spatial_audit": {
+    "has_neighbour_25km": 14,
+    "total_wells": 15,
+    "pct_has_neighbour": 93.33333333333333,
+    "avg_nearest_distance_km": 3.5397382670106543,
+    "is_meaningful": true
+  },
+  "harder_injection_tests": {
+    "0.5x": {
+      "magnitude_mult": 0.5,
+      "total_injections": 30,
+      "caught_count": 5,
+      "catch_rate_pct": 16.666666666666664,
+      "avg_delay_weeks": 2.2
+    },
+    "1.0x": {
+      "magnitude_mult": 1.0,
+      "total_injections": 30,
+      "caught_count": 8,
+      "catch_rate_pct": 26.666666666666668,
+      "avg_delay_weeks": 3.875
+    },
+    "2.0x": {
+      "magnitude_mult": 2.0,
+      "total_injections": 30,
+      "caught_count": 20,
+      "catch_rate_pct": 66.66666666666666,
+      "avg_delay_weeks": 3.8
+    },
+    "3.0x": {
+      "magnitude_mult": 3.0,
+      "total_injections": 30,
+      "caught_count": 28,
+      "catch_rate_pct": 93.33333333333333,
+      "avg_delay_weeks": 3.142857142857143
+    }
+  }
+}

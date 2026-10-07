@@ -1,0 +1,5 @@
+
+# Large datasets
+*.zip
+archive-4/gwl-daily.csv
+data/california/gwl_daily.csv
