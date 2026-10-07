@@ -3,3 +3,7 @@
 *.zip
 archive-4/gwl-daily.csv
 data/california/gwl_daily.csv
+__pycache__/
+*.pyc
+.DS_Store
+.env
