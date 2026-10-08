@@ -6,7 +6,7 @@ and real-world aquifer drawdown-recovery responses.
 
 import numpy as np
 from dataclasses import dataclass
-from typing import Tuple, Dict, Any, List
+from typing import Tuple, Dict, Any, List, Optional
 
 @dataclass
 class AquiferConfig:
@@ -34,7 +34,10 @@ class GroundwaterSimulator:
         dt: float = 1.0,
         pump_start_sec: float = 15.0,
         pump_duration_sec: float = 25.0,
-        is_registered: bool = True
+        is_registered: bool = True,
+        start_level_cm: Optional[float] = None,
+        custom_drawdown_rate: Optional[float] = None,
+        custom_recharge_k: Optional[float] = None
     ) -> Dict[str, Any]:
         """
         Simulate a complete pumping cycle:
@@ -51,15 +54,15 @@ class GroundwaterSimulator:
         # Configure scenario parameters
         if event_type == "normal":
             p_dur = pump_duration_sec
-            recharge_k = self.config.normal_recharge_rate_k
+            recharge_k = custom_recharge_k if custom_recharge_k is not None else self.config.normal_recharge_rate_k
             registered_flag = True
         elif event_type == "excessive":
             p_dur = pump_duration_sec * 2.5 # Long pump run (e.g. 62.5 sec)
-            recharge_k = self.config.depleted_recharge_rate_k # Aquifer cone of depression deep, slow recovery
+            recharge_k = custom_recharge_k if custom_recharge_k is not None else self.config.depleted_recharge_rate_k # Aquifer cone of depression deep, slow recovery
             registered_flag = True
         elif event_type == "unregistered":
             p_dur = pump_duration_sec * 1.5
-            recharge_k = self.config.normal_recharge_rate_k * 0.8
+            recharge_k = custom_recharge_k if custom_recharge_k is not None else (self.config.normal_recharge_rate_k * 0.8)
             registered_flag = False # PUMPING WITHOUT PERMIT / OUTSIDE SCHEDULE
         else:
             raise ValueError(f"Unknown event type: {event_type}")
@@ -67,8 +70,10 @@ class GroundwaterSimulator:
         pump_state = np.zeros(n, dtype=int)
         water_level = np.zeros(n, dtype=float)
         
-        current_level = self.config.baseline_water_level_cm
+        baseline = start_level_cm if start_level_cm is not None else self.config.baseline_water_level_cm
+        current_level = baseline
         pump_end_sec = pump_start_sec + p_dur
+        drawdown_rate = custom_drawdown_rate if custom_drawdown_rate is not None else self.config.pump_drawdown_rate_cm_s
 
         for i, t in enumerate(time_steps):
             is_pump_on = (t >= pump_start_sec) and (t < pump_end_sec)
@@ -76,14 +81,14 @@ class GroundwaterSimulator:
             
             if is_pump_on:
                 # Water level drops due to pumping
-                drawdown_step = self.config.pump_drawdown_rate_cm_s * dt
+                drawdown_step = drawdown_rate * dt
                 # Slight non-linear drop as pump head changes
                 current_level = max(2.0, current_level - drawdown_step)
             else:
-                if current_level < self.config.baseline_water_level_cm:
+                if current_level < baseline:
                     # Inflow / simulated aquifer recharge
-                    recovery_step = recharge_k * (self.config.baseline_water_level_cm - current_level) * dt
-                    current_level = min(self.config.baseline_water_level_cm, current_level + recovery_step)
+                    recovery_step = recharge_k * (baseline - current_level) * dt
+                    current_level = min(baseline, current_level + recovery_step)
 
             # Ambient fluctuation
             ambient_jitter = 0.02 * np.sin(2 * np.pi * t / 60.0)

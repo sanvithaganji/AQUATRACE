@@ -1,0 +1,31 @@
+{
+  "typical_drawdown_cm": 2.704,
+  "typical_duration_sec": 27.3,
+  "typical_recovery_pct": 75.07,
+  "events_used": 50,
+  "raw_events_found": 50,
+  "discarded_events": 0,
+  "statistics": {
+    "drawdown": {
+      "median": 2.01,
+      "p95": 2.47,
+      "p99": 2.58,
+      "typical_with_margin": 2.7,
+      "max": 2.58
+    },
+    "duration": {
+      "median": 21.0,
+      "p95": 26.0,
+      "p99": 26.0,
+      "typical_with_margin": 27.3,
+      "max": 26.0
+    },
+    "recovery_pct": {
+      "median": 100.0,
+      "p05": 83.9,
+      "p01": 79.0,
+      "typical_with_margin": 75.1,
+      "min": 76.7
+    }
+  }
+}

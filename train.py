@@ -6,9 +6,15 @@ Isolation Forest anomaly detection, and benchmark metrics generation.
 
 import sys
 import os
+import random
+import numpy as np
+import torch
 from src.ml.pipeline import GroundwaterPipeline
 
 def main():
+    random.seed(42)
+    np.random.seed(42)
+    torch.manual_seed(42)
     pipeline = GroundwaterPipeline(model_dir="models")
     metrics = pipeline.train(
         n_normal=700,

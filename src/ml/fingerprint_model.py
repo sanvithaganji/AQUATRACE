@@ -13,9 +13,10 @@ from typing import Tuple, Optional
 class LSTMFingerprintAutoencoder(nn.Module):
     """
     Encoder-Decoder LSTM architecture for time-series reconstruction.
-    Input shape: (batch_size, seq_len, input_dim) -> e.g. [water_level, pump_state]
+    Input shape: (batch_size, seq_len, 1) -> relative water level trajectory only.
+    Strictly NO pump_state, NO is_registered, NO start_hour.
     """
-    def __init__(self, seq_len: int = 90, input_dim: int = 2, hidden_dim: int = 32, latent_dim: int = 16):
+    def __init__(self, seq_len: int = 90, input_dim: int = 1, hidden_dim: int = 32, latent_dim: int = 16):
         super().__init__()
         self.seq_len = seq_len
         self.input_dim = input_dim
@@ -65,7 +66,7 @@ class LSTMFingerprintAutoencoder(nn.Module):
         self.eval()
         with torch.no_grad():
             reconstructed = self.forward(x)
-            # Focus error primarily on water level channel (index 0)
+            # Focus error on water level channel (index 0)
             loss = torch.mean((x[:, :, 0] - reconstructed[:, :, 0]) ** 2).item()
         return float(loss)
 
@@ -74,7 +75,7 @@ class FingerprintModelTrainer:
     """
     Manages data preparation, training loop, and model persistence.
     """
-    def __init__(self, seq_len: int = 90, input_dim: int = 2, lr: float = 0.003):
+    def __init__(self, seq_len: int = 90, input_dim: int = 1, lr: float = 0.003):
         self.seq_len = seq_len
         self.input_dim = input_dim
         self.model = LSTMFingerprintAutoencoder(seq_len=seq_len, input_dim=input_dim)

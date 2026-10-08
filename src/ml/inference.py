@@ -63,13 +63,17 @@ class StreamingInferenceEngine:
         self.initialize_models()
         now = timestamp if timestamp is not None else time.time()
         
-        # 1. Ultrasonic Noise Filter (3-point median window)
-        self.raw_distances.append(distance_cm)
-        recent_dists = list(self.raw_distances)[-3:]
-        filtered_dist = float(np.median(recent_dists))
+        # Steps a & b: Blind zone check (<2 cm) and tank bounds check
+        if distance_cm < 2.0 or distance_cm > (self.config.tank_height_cm + self.config.sensor_offset_cm):
+            # Dropped impossible reading (blind zone or out of range)
+            filtered_dist = float(self.filtered_distances[-1]) if len(self.filtered_distances) > 0 else 12.0
+        else:
+            self.raw_distances.append(distance_cm)
+            recent_dists = list(self.raw_distances)[-3:]
+            filtered_dist = float(np.median(recent_dists))
         self.filtered_distances.append(filtered_dist)
 
-        # Water level column height
+        # Water level column height (calibrated tank height + sensor offset - sensor distance)
         water_level = (self.config.tank_height_cm + self.config.sensor_offset_cm) - filtered_dist
         water_level = float(np.clip(water_level, 0.0, self.config.tank_height_cm))
         self.water_levels.append(water_level)

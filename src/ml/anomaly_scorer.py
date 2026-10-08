@@ -25,17 +25,19 @@ class ExtractionRiskScorer:
             random_state=42
         )
         self.feature_names = [
-            "baseline_level_cm",
             "max_drawdown_cm",
             "drawdown_rate_cm_s",
             "pump_duration_sec",
             "recovery_duration_sec",
             "recovery_rate_cm_s",
             "drawdown_recovery_ratio",
-            "residual_deficit_cm"
+            "residual_deficit_cm",
+            "recovery_pct"
         ]
         # Baseline reference statistics from normal calibration runs
         self.baseline_stats: Dict[str, Dict[str, float]] = {}
+        self.iso_p05: float = -0.1
+        self.iso_p50: float = 0.05
 
     def fit(self, normal_features_df: pd.DataFrame):
         """
@@ -45,6 +47,10 @@ class ExtractionRiskScorer:
         self.scaler.fit(X)
         X_scaled = self.scaler.transform(X)
         self.iso_forest.fit(X_scaled)
+
+        train_scores = self.iso_forest.decision_function(X_scaled)
+        self.iso_p05 = float(np.percentile(train_scores, 5))
+        self.iso_p50 = float(np.percentile(train_scores, 50))
 
         # Store baseline calibration references
         for col in self.feature_names:
@@ -64,13 +70,13 @@ class ExtractionRiskScorer:
         """
         Evaluate an event or real-time window and produce the Extraction Risk Score.
         """
-        # 1. Isolation Forest Anomaly Score
+        # 1. Isolation Forest Anomaly Score (calibrated against normal percentiles)
         vec = np.array([[features.get(k, 0.0) for k in self.feature_names]])
         vec_scaled = self.scaler.transform(vec)
-        # Decision function: lower values mean more anomalous (negative = outlier)
         raw_iso_score = self.iso_forest.decision_function(vec_scaled)[0]
-        # Map raw decision function [-0.3, 0.3] -> [100, 0]
-        iso_risk = float(np.clip(100.0 * (0.5 - raw_iso_score * 1.8), 0.0, 100.0))
+        scale = (self.iso_p50 - self.iso_p05) if (self.iso_p50 - self.iso_p05) > 1e-4 else 0.1
+        z = (self.iso_p05 - raw_iso_score) / scale
+        iso_risk = float(np.clip(100.0 / (1.0 + np.exp(-1.8 * z)), 0.0, 100.0))
 
         # 2. Hydrogeological Drawdown Sub-Score
         max_dd = features.get("max_drawdown_cm", 0.0)
@@ -102,49 +108,23 @@ class ExtractionRiskScorer:
             recovery_subscore = float(np.clip(75.0 + (rec_ratio - 1.8) * 15.0 + deficit * 10.0, 75.0, 99.0))
             recovery_label = "SEVERE / CRITICAL"
 
-        # 4. Activity / Schedule Mismatch Sub-Score
-        is_registered = bool(int(features.get("is_registered_window", 1.0)))
-        pump_active = features.get("pump_duration_sec", 0.0) > 3.0 or max_dd > 0.6
-        
-        if not is_registered and pump_active:
-            schedule_subscore = 95.0
-            schedule_label = "SUSPECTED UNREGISTERED EXTRACTION"
-        elif not is_registered and not pump_active:
-            schedule_subscore = 10.0
-            schedule_label = "ALIGNED (IDLE)"
-        else:
-            schedule_subscore = 15.0
-            schedule_label = "PERMITTED / REGISTERED"
-
-        # 5. Historical Aquifer Drift / Deficit
+        # 4. Historical Aquifer Drift / Residual Deficit Sub-Score
         drift_subscore = float(np.clip(deficit * 30.0 + 10.0, 10.0, 90.0))
         historical_label = "STABLE" if drift_subscore < 40.0 else ("ELEVATED STRESS" if drift_subscore < 70 else "CRITICAL DEPLETION")
 
-        # 6. Composite Ensemble Extraction Risk Score
-        # Weights:
-        # If unregistered event detected -> heavy priority weight on schedule mismatch
-        if not is_registered and pump_active:
-            composite_risk = (
-                0.40 * schedule_subscore +
-                0.20 * drawdown_subscore +
-                0.20 * recovery_subscore +
-                0.10 * iso_risk +
-                0.10 * lstm_residual_score
-            )
-            # Guarantee >= 85 for active extraction outside registration
-            composite_risk = max(88.0, composite_risk)
-        else:
-            composite_risk = (
-                0.25 * drawdown_subscore +
-                0.25 * recovery_subscore +
-                0.20 * iso_risk +
-                0.20 * lstm_residual_score +
-                0.10 * schedule_subscore
-            )
+        # 5. Composite Extraction Risk Score (Strictly hydrological: NO is_registered, NO pump_state, NO start_hour)
+        composite_risk = (
+            0.30 * drawdown_subscore +
+            0.30 * recovery_subscore +
+            0.20 * iso_risk +
+            0.20 * lstm_residual_score
+        )
+        if deficit > 0.4:
+            composite_risk = max(composite_risk, min(95.0, composite_risk + (deficit - 0.4) * 20.0))
 
         composite_risk = float(np.clip(round(composite_risk, 1), 0.0, 100.0))
 
-        # 7. Categorization & Inspection Priority
+        # 6. Categorization & Inspection Priority
         if composite_risk < 35.0:
             priority = "LOW"
             status = "NORMAL"
@@ -162,9 +142,9 @@ class ExtractionRiskScorer:
             recommendation = "Prioritize field inspection. Excessive drawdown depth with slow recovery indicates extraction exceeding permitted threshold."
         else:
             priority = "CRITICAL"
-            status = "SUSPECTED UNREGISTERED EXTRACTION" if not is_registered else "SEVERE OVER-EXTRACTION"
+            status = "OUTSIDE EXPECTED PATTERN"
             badge_color = "#dc2626" # Deep Crimson Red
-            recommendation = "Urgent field inspection recommended. Pumping activity detected outside registered hours or causing severe localized aquifer cone of depression."
+            recommendation = "Urgent field inspection recommended. Pumping activity caused severe localized aquifer cone of depression outside expected pattern."
 
         return {
             "extraction_risk_score": int(round(composite_risk)),
@@ -183,11 +163,6 @@ class ExtractionRiskScorer:
                     "level": recovery_label,
                     "duration_sec": round(rec_dur, 1)
                 },
-                "activity_mismatch": {
-                    "score": int(round(schedule_subscore)),
-                    "level": schedule_label,
-                    "is_registered": is_registered
-                },
                 "historical_pattern": {
                     "score": int(round(drift_subscore)),
                     "level": historical_label,
@@ -199,13 +174,28 @@ class ExtractionRiskScorer:
             "features_summary": features
         }
 
+    @classmethod
+    def get_exact_feature_names(cls) -> list:
+        return [
+            "max_drawdown_cm",
+            "drawdown_rate_cm_s",
+            "pump_duration_sec",
+            "recovery_duration_sec",
+            "recovery_rate_cm_s",
+            "drawdown_recovery_ratio",
+            "residual_deficit_cm",
+            "recovery_pct"
+        ]
+
     def save(self, filepath: str):
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         joblib.dump({
             "scaler": self.scaler,
             "iso_forest": self.iso_forest,
             "feature_names": self.feature_names,
-            "baseline_stats": self.baseline_stats
+            "baseline_stats": self.baseline_stats,
+            "iso_p05": getattr(self, "iso_p05", -0.1),
+            "iso_p50": getattr(self, "iso_p50", 0.05)
         }, filepath)
 
     def load(self, filepath: str):
@@ -214,3 +204,5 @@ class ExtractionRiskScorer:
         self.iso_forest = data["iso_forest"]
         self.feature_names = data["feature_names"]
         self.baseline_stats = data["baseline_stats"]
+        self.iso_p05 = data.get("iso_p05", -0.1)
+        self.iso_p50 = data.get("iso_p50", 0.05)

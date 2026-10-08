@@ -1,48 +1,50 @@
 {
-  "roc_auc_score": 1.0,
+  "roc_auc_score": 0.9966,
   "confusion_matrix": [
     [
-      700,
-      0
+      698,
+      2
     ],
     [
-      0,
-      500
+      58,
+      442
     ]
   ],
   "scenario_benchmarks": {
     "normal": {
       "count": 700,
-      "mean_risk_score": 20.802857142857142,
-      "std_risk_score": 3.4659144919207283,
-      "min_risk_score": 16,
-      "max_risk_score": 42,
+      "mean_risk_score": 17.69857142857143,
+      "std_risk_score": 6.434438433863804,
+      "min_risk_score": 10,
+      "max_risk_score": 51,
       "priority_distribution": {
-        "MEDIUM": 5,
-        "LOW": 695
+        "LOW": 684,
+        "MEDIUM": 16
       }
     },
     "excessive": {
       "count": 250,
-      "mean_risk_score": 85.312,
-      "std_risk_score": 0.81403685420256,
-      "min_risk_score": 83,
-      "max_risk_score": 87,
-      "priority_distribution": {
-        "HIGH": 62,
-        "CRITICAL": 188
-      }
-    },
-    "unregistered": {
-      "count": 250,
-      "mean_risk_score": 88.324,
-      "std_risk_score": 0.7609362653994092,
-      "min_risk_score": 88,
-      "max_risk_score": 92,
+      "mean_risk_score": 96.972,
+      "std_risk_score": 0.8217152791569595,
+      "min_risk_score": 95,
+      "max_risk_score": 98,
       "priority_distribution": {
         "CRITICAL": 250
       }
+    },
+    "outside_pattern": {
+      "count": 250,
+      "mean_risk_score": 73.324,
+      "std_risk_score": 22.712001761183448,
+      "min_risk_score": 22,
+      "max_risk_score": 95,
+      "priority_distribution": {
+        "CRITICAL": 108,
+        "LOW": 16,
+        "MEDIUM": 65,
+        "HIGH": 61
+      }
     }
   },
-  "lstm_final_loss": 0.15255
+  "lstm_final_loss": 0.266
 }

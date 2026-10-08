@@ -1,7 +1,9 @@
 """
 Groundwater ML Pipeline
+=======================
 End-to-end management: dataset generation, training, validation, serialization,
 and live inference for the Groundwater Fingerprint system.
+Uses unified preprocessing pipeline across training, evaluation, and live inference.
 """
 
 import os
@@ -12,6 +14,7 @@ from typing import Dict, Any, Tuple, List, Optional
 from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
 
 from .hydro_physics import GroundwaterSimulator, AquiferConfig
+from .preprocessing import preprocess_event_telemetry
 from .feature_extractor import GroundwaterFeatureExtractor
 from .dataset_generator import GroundwaterDatasetGenerator
 from .fingerprint_model import FingerprintModelTrainer
@@ -21,20 +24,20 @@ class GroundwaterPipeline:
     def __init__(self, model_dir: str = "models"):
         self.model_dir = model_dir
         self.extractor = GroundwaterFeatureExtractor()
-        self.lstm_trainer = FingerprintModelTrainer(seq_len=90, input_dim=2)
+        self.lstm_trainer = FingerprintModelTrainer(seq_len=90, input_dim=1)
         self.risk_scorer = ExtractionRiskScorer()
         self.is_loaded = False
 
     def train(
         self,
-        n_normal: int = 600,
+        n_normal: int = 700,
         n_excessive: int = 250,
         n_unregistered: int = 250,
-        epochs: int = 30
+        epochs: int = 35
     ) -> Dict[str, Any]:
         """
         Train both the LSTM Fingerprint model and the Risk Scorer on baseline data,
-        then evaluate against all test scenarios.
+        then evaluate against all test scenarios. Preprocessing is applied identically.
         """
         print("=" * 60)
         print("STARTING GROUNDWATER FINGERPRINT MODEL TRAINING")
@@ -47,28 +50,34 @@ class GroundwaterPipeline:
             n_unregistered=n_unregistered
         )
 
-        # 1. Prepare normal sequences for LSTM Autoencoder
+        # 1. Prepare normal sequences for LSTM Autoencoder (strictly preprocessed relative water level, input_dim=1)
         normal_events = [ev for ev in raw_events if ev["event_type"] == "normal"]
         normal_seqs = []
         for ev in normal_events:
-            w_norm = ev["measured_water_level"]
-            p_state = ev["pump_state"]
-            # Subsample or interpolate to 90 timesteps
-            indices = np.linspace(0, len(w_norm) - 1, 90).astype(int)
-            seq = np.column_stack([w_norm[indices], p_state[indices]])
+            prep = preprocess_event_telemetry(
+                time_sec=ev["time_sec"],
+                water_level_cm=ev["measured_water_level"],
+                pump_state=ev["pump_state"]
+            )
+            w_clean = prep["water_level_cm"]
+            b_line = prep["baseline_level_cm"]
+            rel_w = w_clean - b_line
+            # Resample / subsample to 90 timesteps
+            indices = np.linspace(0, len(w_clean) - 1, 90).astype(int)
+            seq = rel_w[indices, None]  # Shape: (90, 1)
             normal_seqs.append(seq)
         normal_seqs = np.array(normal_seqs, dtype=np.float32)
 
-        print(f"\n[1/3] Training LSTM Autoencoder on {len(normal_seqs)} normal sequences...")
+        print(f"\n[1/3] Training LSTM Autoencoder on {len(normal_seqs)} normal sequences (input_dim=1)...")
         lstm_loss = self.lstm_trainer.fit(normal_seqs, epochs=epochs, batch_size=32)
 
-        # 2. Train Isolation Forest and baseline reference stats
+        # 2. Train Isolation Forest and baseline reference stats on training normal features only
         print("\n[2/3] Training Isolation Forest and calibrating Hydrogeological Risk Scorer...")
         normal_df = df[df["scenario"] == "normal"].copy()
         self.risk_scorer.fit(normal_df)
 
         # 3. Comprehensive Evaluation
-        print("\n[3/3] Evaluating across Scenarios (Normal, Excessive, Unregistered)...")
+        print("\n[3/3] Evaluating across Scenarios (Normal, Excessive, Outside Pattern)...")
         eval_results = []
         y_true_binary = []
         y_pred_risk = []
@@ -76,14 +85,18 @@ class GroundwaterPipeline:
 
         for idx, row in df.iterrows():
             features_dict = row[self.extractor.feature_names].to_dict()
-            features_dict["residual_deficit_cm"] = row["residual_deficit_cm"]
-            features_dict["is_registered_window"] = row["is_registered_window"]
-            features_dict["pump_duration_sec"] = row["pump_duration_sec"]
 
-            # Compute LSTM score for this event's raw sequence
             ev = raw_events[idx]
-            indices = np.linspace(0, len(ev["measured_water_level"]) - 1, 90).astype(int)
-            seq = np.column_stack([ev["measured_water_level"][indices], ev["pump_state"][indices]])
+            prep = preprocess_event_telemetry(
+                time_sec=ev["time_sec"],
+                water_level_cm=ev["measured_water_level"],
+                pump_state=ev["pump_state"]
+            )
+            w_clean = prep["water_level_cm"]
+            b_line = prep["baseline_level_cm"]
+            rel_w = w_clean - b_line
+            indices = np.linspace(0, len(w_clean) - 1, 90).astype(int)
+            seq = rel_w[indices, None]
             _, lstm_score = self.lstm_trainer.score_sequence(seq)
 
             eval_out = self.risk_scorer.evaluate(features_dict, lstm_residual_score=lstm_score)
@@ -93,7 +106,6 @@ class GroundwaterPipeline:
 
             risk_score = eval_out["extraction_risk_score"]
             y_pred_risk.append(risk_score)
-            # Binary flag: risk >= 50 is flagged as abnormal
             pred_binary = 1 if risk_score >= 50 else 0
             y_pred_binary.append(pred_binary)
             y_true_binary.append(row["is_anomaly"])
@@ -101,7 +113,7 @@ class GroundwaterPipeline:
         # Calculate metrics
         eval_df = pd.DataFrame(eval_results)
         scenario_metrics = {}
-        for sc in ["normal", "excessive", "unregistered"]:
+        for sc in ["normal", "excessive", "outside_pattern"]:
             sc_subset = [r for r in eval_results if r["true_scenario"] == sc]
             scores = [r["extraction_risk_score"] for r in sc_subset]
             priorities = [r["inspection_priority"] for r in sc_subset]
@@ -156,29 +168,59 @@ class GroundwaterPipeline:
     def predict_event(
         self,
         time_sec: np.ndarray,
-        water_level_cm: np.ndarray,
-        pump_state: np.ndarray,
+        water_level_cm: Optional[np.ndarray] = None,
+        pump_state: Optional[np.ndarray] = None,
+        sensor_distance_cm: Optional[np.ndarray] = None,
         is_registered: int = 1
     ) -> Dict[str, Any]:
         """
-        Evaluate a complete or partial pumping event.
+        Evaluate a complete or partial pumping event using the unified preprocessing pipeline.
         """
         if not self.is_loaded:
             self.load()
 
-        # Extract features
-        features = self.extractor.extract_from_event(
+        # Step a - g: Preprocessing
+        prep = preprocess_event_telemetry(
             time_sec=time_sec,
+            sensor_distance_cm=sensor_distance_cm,
             water_level_cm=water_level_cm,
-            pump_state=pump_state,
+            pump_state=pump_state
+        )
+        
+        if prep.get("is_bad_data", False):
+            return {
+                "extraction_risk_score": 0,
+                "inspection_priority": "DISCARDED",
+                "status": "BAD DATA QUALITY",
+                "badge_color": "#9ca3af",
+                "recommendation": f"Telemetry rejected: {prep.get('discard_reason')}",
+                "is_bad_data": True,
+                "discard_reason": prep.get("discard_reason"),
+                "readings_fixed": prep.get("readings_fixed", 0),
+                "repair_pct": prep.get("repair_pct", 0.0)
+            }
+
+        # Extract features from preprocessed series
+        features = self.extractor.extract_from_event(
+            time_sec=prep["time_sec"],
+            water_level_cm=prep["water_level_cm"],
+            pump_state=prep["pump_state"],
             is_registered=is_registered
         )
 
-        # LSTM sequence score
-        indices = np.linspace(0, len(water_level_cm) - 1, 90).astype(int)
-        seq = np.column_stack([water_level_cm[indices], pump_state[indices]])
+        # LSTM sequence score (using preprocessed relative water level)
+        clean_levels = prep["water_level_cm"]
+        baseline = prep["baseline_level_cm"]
+        rel_levels = clean_levels - baseline
+        indices = np.linspace(0, len(clean_levels) - 1, 90).astype(int)
+        seq = rel_levels[indices, None]
         _, lstm_score = self.lstm_trainer.score_sequence(seq)
 
         # Full risk evaluation
         result = self.risk_scorer.evaluate(features, lstm_residual_score=lstm_score)
+        result["preprocessing"] = {
+            "readings_fixed": prep.get("readings_fixed", 0),
+            "repair_pct": prep.get("repair_pct", 0.0),
+            "is_bad_data": False
+        }
         return result
